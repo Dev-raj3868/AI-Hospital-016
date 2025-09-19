@@ -18,6 +18,7 @@ import PopulationAnalytics from '@/components/medical/PopulationAnalytics';
 import AMEManagement from '@/components/medical/AMEManagement';
 import HealthAlerts from '@/components/medical/HealthAlerts';
 import HealthReports from '@/components/medical/HealthReports';
+import OtherPatientDetails from '@/components/medical/OtherPatientDetails';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -39,6 +40,8 @@ const Dashboard = () => {
           return <HealthDataCollection />;
         case 'personnel-details':
           return <PersonnelDetails />;
+        case 'other-patient-details':
+          return <OtherPatientDetails />;
         case 'upload':
           return <DocumentUpload />;
         case 'reports':

@@ -31,6 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     { id: 'alerts', label: 'Health Alerts', icon: Info },
     { id: 'health-data-collection', label: 'Health Data Collection', icon: Activity },
     { id: 'personnel-details', label: 'Personnel Details', icon: User },
+    { id: 'other-patient-details', label: 'Other Patient Details', icon: IdCard },
     { id: 'upload', label: 'Document Upload', icon: Upload },
     { id: 'reports', label: 'Health Reports', icon: BarChart },
     { id: 'settings', label: 'Settings', icon: Settings }
