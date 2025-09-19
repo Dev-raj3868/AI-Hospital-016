@@ -10,8 +10,8 @@ import AMESchedule from '@/components/personnel/AMESchedule';
 import HealthRecords from '@/components/personnel/HealthRecords';
 import PersonnelProfile from '@/components/personnel/PersonnelProfile';
 import PersonnelDetails from '@/components/personnel/PersonnelDetails';
-import HealthDataCollection from '@/components/personnel/HealthDataCollection';
 import DocumentUpload from '@/components/personnel/DocumentUpload';
+import AIHealthPrediction from '@/components/personnel/AIHealthPrediction';
 import SettingsPage from '@/components/personnel/SettingsPage';
 import MedicalOfficerDashboard from '@/components/medical/MedicalOfficerDashboard';
 import PopulationAnalytics from '@/components/medical/PopulationAnalytics';
@@ -36,8 +36,6 @@ const Dashboard = () => {
           return <AMEManagement />;
         case 'alerts':
           return <HealthAlerts />;
-        case 'health-data-collection':
-          return <HealthDataCollection />;
         case 'personnel-details':
           return <PersonnelDetails />;
         case 'other-patient-details':
@@ -59,8 +57,8 @@ const Dashboard = () => {
           return <AMESchedule />;
         case 'records':
           return <HealthRecords />;
-        case 'health-data':
-          return <HealthDataCollection />;
+        case 'ai-health-prediction':
+          return <AIHealthPrediction />;
         case 'upload':
           return <DocumentUpload />;
         case 'settings':

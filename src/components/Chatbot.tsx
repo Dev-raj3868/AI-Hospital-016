@@ -1,15 +1,23 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MessageCircle, X, Send, Bot, User, Sparkles } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User, Sparkles, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+}
+
+// TypeScript declarations for Web Speech API
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
 }
 
 const Chatbot = () => {
@@ -24,6 +32,84 @@ const Chatbot = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const recognitionRef = useRef<any>(null);
+  const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  useEffect(() => {
+    // Initialize speech recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInputMessage(transcript);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = () => {
+        setIsListening(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      if (speechSynthesisRef.current) {
+        speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) return;
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };
+
+  const speakText = (text: string) => {
+    if (!voiceEnabled || !('speechSynthesis' in window)) return;
+
+    // Cancel any ongoing speech
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 0.8;
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    speechSynthesisRef.current = utterance;
+    speechSynthesis.speak(utterance);
+  };
+
+  const toggleVoice = () => {
+    setVoiceEnabled(!voiceEnabled);
+    if (isSpeaking) {
+      speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
 
   const sendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -41,14 +127,20 @@ const Chatbot = () => {
 
     // Simulate bot response with typing indicator
     setTimeout(() => {
+      const botResponseText = getBotResponse(inputMessage);
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: getBotResponse(inputMessage),
+        text: botResponseText,
         sender: 'bot',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, botResponse]);
       setIsTyping(false);
+      
+      // Speak the bot response if voice is enabled
+      if (voiceEnabled) {
+        speakText(botResponseText);
+      }
     }, 1500);
   };
 
@@ -101,15 +193,26 @@ const Chatbot = () => {
       {isOpen && (
         <Card className="fixed bottom-24 right-6 z-40 w-96 h-[32rem] shadow-2xl border-0 animate-scale-in">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg p-4">
-            <CardTitle className="flex items-center space-x-2">
-              <div className="relative">
-                <Bot className="h-6 w-6" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="relative">
+                  <Bot className="h-6 w-6" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+                <div>
+                  <span className="text-lg font-semibold">Health Assistant</span>
+                  <p className="text-xs text-blue-100 font-normal">Powered by AI</p>
+                </div>
               </div>
-              <div>
-                <span className="text-lg font-semibold">Health Assistant</span>
-                <p className="text-xs text-blue-100 font-normal">Powered by AI</p>
-              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={toggleVoice}
+                className="text-white hover:bg-blue-700"
+                title={voiceEnabled ? "Disable voice" : "Enable voice"}
+              >
+                {voiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              </Button>
             </CardTitle>
           </CardHeader>
           
@@ -160,24 +263,41 @@ const Chatbot = () => {
 
             {/* Input Area */}
             <div className="border-t bg-white p-4">
-              <div className="flex space-x-3">
+              <div className="flex space-x-2">
                 <Input
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask me about your health..."
+                  placeholder={isListening ? "Listening..." : "Type or speak your health question..."}
                   className="flex-1 border-gray-300 focus:border-blue-500 rounded-full px-4"
-                  disabled={isTyping}
+                  disabled={isTyping || isListening}
                 />
+                {recognitionRef.current && (
+                  <Button 
+                    onClick={toggleListening}
+                    size="sm"
+                    variant={isListening ? "destructive" : "outline"}
+                    className={`rounded-full w-10 h-10 p-0 ${isListening ? "bg-red-600 hover:bg-red-700" : ""}`}
+                    title={isListening ? "Stop listening" : "Start voice input"}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                )}
                 <Button 
                   onClick={sendMessage} 
                   size="sm"
-                  disabled={!inputMessage.trim() || isTyping}
+                  disabled={!inputMessage.trim() || isTyping || isListening}
                   className="rounded-full w-10 h-10 p-0 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:scale-105"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
+              {isSpeaking && (
+                <div className="mt-2 text-sm text-blue-600 flex items-center justify-center">
+                  <Volume2 className="h-3 w-3 mr-1 animate-pulse" />
+                  Speaking response...
+                </div>
+              )}
               <p className="text-xs text-gray-500 mt-2 text-center">
                 AI assistant to help with your health queries
               </p>

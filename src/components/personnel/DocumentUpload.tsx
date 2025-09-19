@@ -16,24 +16,42 @@ const DocumentUpload = () => {
       name: 'Blood_Test_Results_2024.pdf',
       type: 'Lab Results',
       status: 'validated',
-      extractedData: 'Glucose: 95 mg/dL, Cholesterol: 180 mg/dL',
-      uploadDate: '2024-06-10'
+      extractedData: 'Glucose: 95 mg/dL (Normal: 70-100), Cholesterol: 180 mg/dL (Normal: <200), Hemoglobin: 14.2 g/dL (Normal: 12-16)',
+      uploadDate: '2024-06-10',
+      nlpEntities: [
+        { entity: 'TEST_RESULT', text: 'Glucose 95 mg/dL', confidence: 0.95 },
+        { entity: 'TEST_RESULT', text: 'Cholesterol 180 mg/dL', confidence: 0.92 },
+        { entity: 'MEDICAL_CONDITION', text: 'Normal glucose levels', confidence: 0.88 }
+      ],
+      summary: 'Blood test results showing normal glucose and cholesterol levels within healthy ranges.'
     },
     {
       id: 2,
       name: 'Chest_Xray_Report.pdf',
       type: 'Imaging',
-      status: 'pending',
-      extractedData: 'Processing...',
-      uploadDate: '2024-06-12'
+      status: 'validated',
+      extractedData: 'Chest X-ray shows clear lung fields with no acute abnormalities. Heart size normal. No pleural effusion.',
+      uploadDate: '2024-06-12',
+      nlpEntities: [
+        { entity: 'BODY_PART', text: 'lung fields', confidence: 0.96 },
+        { entity: 'MEDICAL_FINDING', text: 'no acute abnormalities', confidence: 0.94 },
+        { entity: 'BODY_PART', text: 'heart', confidence: 0.89 }
+      ],
+      summary: 'Normal chest X-ray with clear lungs and normal heart size.'
     },
     {
       id: 3,
       name: 'Vaccination_Record.pdf',
       type: 'Immunization',
-      status: 'error',
-      extractedData: 'Failed to extract data',
-      uploadDate: '2024-06-11'
+      status: 'validated',
+      extractedData: 'COVID-19 vaccine: Pfizer-BioNTech, 2 doses completed. Flu vaccine: 2024 season. Tetanus booster: Due 2025.',
+      uploadDate: '2024-06-11',
+      nlpEntities: [
+        { entity: 'MEDICATION', text: 'COVID-19 vaccine Pfizer-BioNTech', confidence: 0.97 },
+        { entity: 'MEDICATION', text: 'Flu vaccine', confidence: 0.92 },
+        { entity: 'MEDICAL_PROCEDURE', text: 'Tetanus booster', confidence: 0.90 }
+      ],
+      summary: 'Vaccination record showing up-to-date COVID-19 and flu vaccines, tetanus booster due next year.'
     }
   ]);
 
@@ -78,15 +96,33 @@ const DocumentUpload = () => {
           clearInterval(interval);
           setIsUploading(false);
           
-          // Add the new document to the list
+          // Add the new document to the list with NLP processing simulation
           const newDoc = {
             id: uploadedDocuments.length + 1,
             name: file.name,
             type: 'Medical Document',
             status: 'pending',
-            extractedData: 'Processing...',
-            uploadDate: new Date().toISOString().split('T')[0]
+            extractedData: 'Processing with NLP...',
+            uploadDate: new Date().toISOString().split('T')[0],
+            nlpEntities: [],
+            summary: 'Document uploaded successfully, NLP analysis in progress...'
           };
+          
+          // Simulate NLP processing after a delay
+          setTimeout(() => {
+            setUploadedDocuments(prev => prev.map(doc => 
+              doc.id === newDoc.id ? {
+                ...doc,
+                status: 'validated',
+                extractedData: 'Sample extracted medical data from uploaded document',
+                nlpEntities: [
+                  { entity: 'DOCUMENT_TYPE', text: file.type, confidence: 0.95 },
+                  { entity: 'UPLOAD_DATE', text: newDoc.uploadDate, confidence: 1.0 }
+                ],
+                summary: `${file.name} has been processed and medical information extracted successfully.`
+              } : doc
+            ));
+          }, 3000);
           
           setUploadedDocuments(prev => [newDoc, ...prev]);
           
@@ -220,16 +256,43 @@ const DocumentUpload = () => {
                       {getStatusIcon(doc.status)}
                       <span className="ml-1 capitalize">{doc.status}</span>
                     </Badge>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        // Create a modal or detailed view for the document
+                        alert(`Document: ${doc.name}\n\nExtracted Data:\n${doc.extractedData}\n\nSummary:\n${(doc as any).summary || 'No summary available'}\n\nNLP Entities:\n${(doc as any).nlpEntities?.map((e: any) => `${e.entity}: ${e.text} (${Math.round(e.confidence * 100)}%)`).join('\n') || 'No entities extracted'}`);
+                      }}
+                    >
                       <Eye className="h-4 w-4 mr-1" />
-                      View
+                      View Details
                     </Button>
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 rounded p-3">
-                  <h4 className="text-sm font-medium text-gray-700 mb-1">Extracted Data:</h4>
-                  <p className="text-sm text-gray-600">{doc.extractedData}</p>
+                <div className="bg-gray-50 rounded p-3 space-y-2">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-1">Extracted Data:</h4>
+                    <p className="text-sm text-gray-600">{doc.extractedData}</p>
+                  </div>
+                  {(doc as any).nlpEntities && (doc as any).nlpEntities.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-1">NLP Entities:</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {(doc as any).nlpEntities.slice(0, 3).map((entity: any, idx: number) => (
+                          <span 
+                            key={idx}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800"
+                          >
+                            {entity.entity}: {entity.text}
+                          </span>
+                        ))}
+                        {(doc as any).nlpEntities.length > 3 && (
+                          <span className="text-xs text-gray-500">+{(doc as any).nlpEntities.length - 3} more</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

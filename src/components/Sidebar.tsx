@@ -29,7 +29,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     { id: 'population', label: 'Population Analytics', icon: Users },
     { id: 'ame-management', label: 'AME Management', icon: Calendar },
     { id: 'alerts', label: 'Health Alerts', icon: Info },
-    { id: 'health-data-collection', label: 'Health Data Collection', icon: Activity },
     { id: 'personnel-details', label: 'Personnel Details', icon: User },
     { id: 'other-patient-details', label: 'Other Patient Details', icon: IdCard },
     { id: 'upload', label: 'Document Upload', icon: Upload },
@@ -41,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     { id: 'dashboard', label: 'My Health', icon: Heart },
     { id: 'ame', label: 'AME Schedule', icon: Calendar },
     { id: 'records', label: 'Health Records', icon: FileText },
-    { id: 'health-data', label: 'Health Data', icon: Activity },
+    { id: 'ai-health-prediction', label: 'AI Health Prediction', icon: Activity },
     { id: 'upload', label: 'Upload Documents', icon: Upload },
     { id: 'settings', label: 'Settings', icon: Settings },
     { id: 'profile', label: 'Profile', icon: User }
