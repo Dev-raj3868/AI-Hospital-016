@@ -7,53 +7,129 @@ import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, CheckCircle, AlertCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import DocumentDetails from './DocumentDetails';
+import { MedicalDocument } from '@/types/document';
 
 const DocumentUpload = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<any>(null);
-  const [uploadedDocuments, setUploadedDocuments] = useState([
+  const [selectedDocument, setSelectedDocument] = useState<MedicalDocument | null>(null);
+  const [uploadedDocuments, setUploadedDocuments] = useState<MedicalDocument[]>([
     {
       id: 1,
       name: 'Blood_Test_Results_2024.pdf',
       type: 'Lab Results',
       status: 'validated',
-      extractedData: 'Glucose: 95 mg/dL (Normal: 70-100), Cholesterol: 180 mg/dL (Normal: <200), Hemoglobin: 14.2 g/dL (Normal: 12-16)',
+      extractedData: 'Glucose: 95 mg/dL (Normal: 70-100), Cholesterol: 180 mg/dL (Normal: <200), Hemoglobin: 14.2 g/dL (Normal: 12-16), Creatinine: 1.1 mg/dL (Normal: 0.7-1.3), Blood Pressure: 120/80 mmHg, HbA1c: 5.4% (Normal: <5.7%), Triglycerides: 150 mg/dL',
       uploadDate: '2024-06-10',
       nlpEntities: [
         { entity: 'TEST_RESULT', text: 'Glucose 95 mg/dL', confidence: 0.95 },
         { entity: 'TEST_RESULT', text: 'Cholesterol 180 mg/dL', confidence: 0.92 },
-        { entity: 'MEDICAL_CONDITION', text: 'Normal glucose levels', confidence: 0.88 }
+        { entity: 'TEST_RESULT', text: 'HbA1c 5.4%', confidence: 0.94 },
+        { entity: 'TEST_RESULT', text: 'Creatinine 1.1 mg/dL', confidence: 0.91 },
+        { entity: 'VITAL_SIGN', text: 'Blood Pressure 120/80 mmHg', confidence: 0.96 },
+        { entity: 'MEDICAL_CONDITION', text: 'Normal glucose levels', confidence: 0.88 },
+        { entity: 'MEDICAL_FINDING', text: 'Pre-diabetic risk low', confidence: 0.85 },
+        { entity: 'ORGAN_FUNCTION', text: 'Kidney function normal', confidence: 0.89 }
       ],
-      summary: 'Blood test results showing normal glucose and cholesterol levels within healthy ranges.'
+      summary: 'Comprehensive blood test results showing normal glucose, cholesterol, and kidney function with excellent metabolic health indicators.',
+      innerDetails: {
+        documentStructure: {
+          sections: ['Patient Information', 'Test Results', 'Reference Ranges', 'Doctor Notes'],
+          totalPages: 3,
+          testDate: '2024-06-08',
+          labFacility: 'City Medical Lab'
+        },
+        clinicalValues: [
+          { parameter: 'Fasting Glucose', value: '95', unit: 'mg/dL', range: '70-100', status: 'Normal' },
+          { parameter: 'Total Cholesterol', value: '180', unit: 'mg/dL', range: '<200', status: 'Optimal' },
+          { parameter: 'HDL Cholesterol', value: '55', unit: 'mg/dL', range: '>40', status: 'Good' },
+          { parameter: 'LDL Cholesterol', value: '110', unit: 'mg/dL', range: '<100', status: 'Near Optimal' },
+          { parameter: 'Triglycerides', value: '150', unit: 'mg/dL', range: '<150', status: 'Borderline' }
+        ],
+        riskAssessment: {
+          cardiovascularRisk: 'Low',
+          diabeticRisk: 'Very Low',
+          overallHealth: 'Excellent'
+        }
+      }
     },
     {
       id: 2,
       name: 'Chest_Xray_Report.pdf',
       type: 'Imaging',
       status: 'validated',
-      extractedData: 'Chest X-ray shows clear lung fields with no acute abnormalities. Heart size normal. No pleural effusion.',
+      extractedData: 'Chest X-ray PA and lateral views show clear lung fields bilaterally with no acute abnormalities. Heart size and silhouette normal. No pleural effusion, pneumothorax, or consolidation. Costophrenic angles sharp. Mediastinal contours normal. Bone structures intact.',
       uploadDate: '2024-06-12',
       nlpEntities: [
         { entity: 'BODY_PART', text: 'lung fields', confidence: 0.96 },
+        { entity: 'BODY_PART', text: 'heart', confidence: 0.89 },
+        { entity: 'BODY_PART', text: 'costophrenic angles', confidence: 0.93 },
+        { entity: 'BODY_PART', text: 'mediastinal contours', confidence: 0.87 },
         { entity: 'MEDICAL_FINDING', text: 'no acute abnormalities', confidence: 0.94 },
-        { entity: 'BODY_PART', text: 'heart', confidence: 0.89 }
+        { entity: 'MEDICAL_FINDING', text: 'normal heart size', confidence: 0.92 },
+        { entity: 'MEDICAL_FINDING', text: 'no pleural effusion', confidence: 0.95 },
+        { entity: 'IMAGING_VIEW', text: 'PA and lateral views', confidence: 0.98 }
       ],
-      summary: 'Normal chest X-ray with clear lungs and normal heart size.'
+      summary: 'Normal chest X-ray with clear lungs, normal heart size, and no pathological findings detected.',
+      innerDetails: {
+        imagingDetails: {
+          studyType: 'Chest X-ray',
+          views: ['Posteroanterior (PA)', 'Lateral'],
+          technique: 'Digital radiography',
+          contrast: 'None',
+          quality: 'Adequate'
+        },
+        anatomicalFindings: [
+          { structure: 'Lungs', finding: 'Clear bilaterally', status: 'Normal' },
+          { structure: 'Heart', finding: 'Normal size and contour', status: 'Normal' },
+          { structure: 'Pleura', finding: 'No effusion', status: 'Normal' },
+          { structure: 'Mediastinum', finding: 'Normal contours', status: 'Normal' },
+          { structure: 'Diaphragm', finding: 'Normal position', status: 'Normal' }
+        ],
+        clinicalCorrelation: 'No acute cardiopulmonary abnormalities. Baseline study established.'
+      }
     },
     {
       id: 3,
       name: 'Vaccination_Record.pdf',
       type: 'Immunization',
       status: 'validated',
-      extractedData: 'COVID-19 vaccine: Pfizer-BioNTech, 2 doses completed. Flu vaccine: 2024 season. Tetanus booster: Due 2025.',
+      extractedData: 'COVID-19 vaccine: Pfizer-BioNTech, 2 doses completed (12/15/2021, 01/10/2022), Booster: 09/20/2022. Flu vaccine: 2024 season (10/15/2024). Tetanus-Diphtheria: Last dose 06/2020, Due 2030. Hepatitis B: Complete series. MMR: Up to date.',
       uploadDate: '2024-06-11',
       nlpEntities: [
         { entity: 'MEDICATION', text: 'COVID-19 vaccine Pfizer-BioNTech', confidence: 0.97 },
-        { entity: 'MEDICATION', text: 'Flu vaccine', confidence: 0.92 },
-        { entity: 'MEDICAL_PROCEDURE', text: 'Tetanus booster', confidence: 0.90 }
+        { entity: 'MEDICATION', text: 'Flu vaccine 2024', confidence: 0.92 },
+        { entity: 'MEDICATION', text: 'Tetanus-Diphtheria', confidence: 0.90 },
+        { entity: 'MEDICATION', text: 'Hepatitis B vaccine', confidence: 0.88 },
+        { entity: 'MEDICATION', text: 'MMR vaccine', confidence: 0.86 },
+        { entity: 'DATE', text: '12/15/2021', confidence: 0.99 },
+        { entity: 'DATE', text: '01/10/2022', confidence: 0.99 },
+        { entity: 'DATE', text: '09/20/2022', confidence: 0.99 },
+        { entity: 'IMMUNIZATION_STATUS', text: 'Complete series', confidence: 0.94 }
       ],
-      summary: 'Vaccination record showing up-to-date COVID-19 and flu vaccines, tetanus booster due next year.'
+      summary: 'Comprehensive vaccination record showing current immunization status with all recommended vaccines up to date.',
+      innerDetails: {
+        vaccinationSchedule: {
+          covidVaccines: [
+            { dose: 1, date: '12/15/2021', manufacturer: 'Pfizer-BioNTech', lotNumber: 'EW0182' },
+            { dose: 2, date: '01/10/2022', manufacturer: 'Pfizer-BioNTech', lotNumber: 'EW0201' },
+            { dose: 'Booster', date: '09/20/2022', manufacturer: 'Pfizer-BioNTech', lotNumber: 'FD1234' }
+          ],
+          otherVaccines: [
+            { vaccine: 'Influenza', date: '10/15/2024', nextDue: '10/2025' },
+            { vaccine: 'Tetanus-Diphtheria', date: '06/2020', nextDue: '06/2030' },
+            { vaccine: 'Hepatitis B', status: 'Complete series', lastDose: '08/2019' },
+            { vaccine: 'MMR', status: 'Up to date', lastDose: '12/2018' }
+          ]
+        },
+        immunityStatus: {
+          covid19: 'Protected',
+          influenza: 'Current season protected',
+          tetanus: 'Protected until 2030',
+          hepatitisB: 'Lifetime immunity',
+          mmr: 'Immune'
+        }
+      }
     }
   ]);
 
@@ -107,7 +183,15 @@ const DocumentUpload = () => {
             extractedData: 'Processing with NLP...',
             uploadDate: new Date().toISOString().split('T')[0],
             nlpEntities: [],
-            summary: 'Document uploaded successfully, NLP analysis in progress...'
+            summary: 'Document uploaded successfully, NLP analysis in progress...',
+            innerDetails: {
+              documentStructure: {
+                sections: ['Processing...'],
+                totalPages: 1,
+                testDate: new Date().toISOString().split('T')[0],
+                labFacility: 'Auto-processing'
+              }
+            }
           };
           
           // Simulate NLP processing after a delay
@@ -121,7 +205,15 @@ const DocumentUpload = () => {
                   { entity: 'DOCUMENT_TYPE', text: file.type, confidence: 0.95 },
                   { entity: 'UPLOAD_DATE', text: newDoc.uploadDate, confidence: 1.0 }
                 ],
-                summary: `${file.name} has been processed and medical information extracted successfully.`
+                summary: `${file.name} has been processed and medical information extracted successfully.`,
+                innerDetails: {
+                  documentStructure: {
+                    sections: ['Document Header', 'Main Content', 'Footer'],
+                    totalPages: 1,
+                    testDate: newDoc.uploadDate,
+                    labFacility: 'Auto-processed'
+                  }
+                }
               } : doc
             ));
           }, 3000);

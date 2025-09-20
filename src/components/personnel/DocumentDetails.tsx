@@ -3,23 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, FileText, CheckCircle, AlertCircle, TrendingUp, Activity, Brain, ClipboardList } from 'lucide-react';
+import { ArrowLeft, FileText, CheckCircle, AlertCircle, TrendingUp, Activity, Brain, ClipboardList, Eye, Heart, Shield, Calendar, BarChart3 } from 'lucide-react';
+import { MedicalDocument } from '@/types/document';
 
 interface DocumentDetailsProps {
-  document: {
-    id: number;
-    name: string;
-    type: string;
-    status: string;
-    extractedData: string;
-    uploadDate: string;
-    nlpEntities: Array<{
-      entity: string;
-      text: string;
-      confidence: number;
-    }>;
-    summary: string;
-  };
+  document: MedicalDocument;
   onBack: () => void;
 }
 
@@ -220,6 +208,208 @@ const DocumentDetails = ({ document, onBack }: DocumentDetailsProps) => {
         </CardContent>
       </Card>
 
+      {/* Advanced Document Analysis */}
+      {document.innerDetails && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Eye className="h-5 w-5 mr-2" />
+              Deep Document Analysis
+            </CardTitle>
+            <CardDescription>Comprehensive inner content extraction and analysis</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Document Structure Analysis */}
+            {document.innerDetails.documentStructure && (
+              <div className="bg-slate-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Document Structure Analysis
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Sections:</span>
+                    <p className="font-medium">{document.innerDetails.documentStructure.sections?.join(', ')}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Pages:</span>
+                    <p className="font-medium">{document.innerDetails.documentStructure.totalPages}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Test Date:</span>
+                    <p className="font-medium">{document.innerDetails.documentStructure.testDate}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Facility:</span>
+                    <p className="font-medium">{document.innerDetails.documentStructure.labFacility}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Clinical Values Table */}
+            {document.innerDetails.clinicalValues && (
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Detailed Clinical Values
+                </h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full border border-gray-200 rounded-lg">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Parameter</th>
+                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Value</th>
+                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Reference Range</th>
+                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {document.innerDetails.clinicalValues.map((value, idx) => (
+                        <tr key={idx} className="border-t border-gray-200">
+                          <td className="px-4 py-2 text-sm text-gray-900">{value.parameter}</td>
+                          <td className="px-4 py-2 text-sm font-medium">{value.value} {value.unit}</td>
+                          <td className="px-4 py-2 text-sm text-gray-600">{value.range}</td>
+                          <td className="px-4 py-2">
+                            <Badge className={
+                              value.status === 'Normal' || value.status === 'Optimal' || value.status === 'Good' 
+                                ? 'bg-green-100 text-green-800' 
+                                : value.status === 'Borderline' || value.status === 'Near Optimal'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-red-100 text-red-800'
+                            }>
+                              {value.status}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Risk Assessment */}
+            {document.innerDetails.riskAssessment && (
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                  <Shield className="h-4 w-4 mr-2" />
+                  AI Risk Assessment
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                    <Heart className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                    <h5 className="font-medium text-green-900">Cardiovascular</h5>
+                    <p className="text-sm text-green-700">{document.innerDetails.riskAssessment.cardiovascularRisk} Risk</p>
+                  </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <Activity className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                    <h5 className="font-medium text-blue-900">Diabetic</h5>
+                    <p className="text-sm text-blue-700">{document.innerDetails.riskAssessment.diabeticRisk} Risk</p>
+                  </div>
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                    <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                    <h5 className="font-medium text-purple-900">Overall Health</h5>
+                    <p className="text-sm text-purple-700">{document.innerDetails.riskAssessment.overallHealth}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Imaging Details */}
+            {document.innerDetails.imagingDetails && (
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                  <Eye className="h-4 w-4 mr-2" />
+                  Imaging Study Details
+                </h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Study Type:</span>
+                      <p className="font-medium">{document.innerDetails.imagingDetails.studyType}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Views:</span>
+                      <p className="font-medium">{document.innerDetails.imagingDetails.views?.join(', ')}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Technique:</span>
+                      <p className="font-medium">{document.innerDetails.imagingDetails.technique}</p>
+                    </div>
+                  </div>
+                  
+                  {document.innerDetails.anatomicalFindings && (
+                    <div className="mt-4">
+                      <h5 className="font-medium text-gray-900 mb-2">Anatomical Findings:</h5>
+                      <div className="space-y-2">
+                        {document.innerDetails.anatomicalFindings.map((finding, idx) => (
+                          <div key={idx} className="flex justify-between items-center p-2 bg-white rounded border">
+                            <div>
+                              <span className="font-medium text-sm">{finding.structure}:</span>
+                              <span className="text-sm text-gray-600 ml-2">{finding.finding}</span>
+                            </div>
+                            <Badge className={finding.status === 'Normal' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                              {finding.status}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Vaccination Schedule */}
+            {document.innerDetails.vaccinationSchedule && (
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Detailed Vaccination Schedule
+                </h4>
+                <div className="space-y-4">
+                  {document.innerDetails.vaccinationSchedule.covidVaccines && (
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h5 className="font-medium text-blue-900 mb-2">COVID-19 Vaccination History</h5>
+                      <div className="space-y-2">
+                        {document.innerDetails.vaccinationSchedule.covidVaccines.map((vaccine, idx) => (
+                          <div key={idx} className="flex justify-between items-center text-sm">
+                            <span>{vaccine.dose === 1 ? '1st Dose' : vaccine.dose === 2 ? '2nd Dose' : vaccine.dose}</span>
+                            <span>{vaccine.date}</span>
+                            <span className="text-gray-600">{vaccine.manufacturer}</span>
+                            <span className="text-xs text-gray-500">Lot: {vaccine.lotNumber}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {document.innerDetails.vaccinationSchedule.otherVaccines && (
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <h5 className="font-medium text-green-900 mb-2">Other Vaccines</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {document.innerDetails.vaccinationSchedule.otherVaccines.map((vaccine, idx) => (
+                          <div key={idx} className="bg-white rounded border p-3">
+                            <h6 className="font-medium text-sm">{vaccine.vaccine}</h6>
+                            <p className="text-xs text-gray-600">
+                              {vaccine.date ? `Last: ${vaccine.date}` : vaccine.lastDose ? `Last: ${vaccine.lastDose}` : vaccine.status}
+                            </p>
+                            {vaccine.nextDue && (
+                              <p className="text-xs text-blue-600">Next due: {vaccine.nextDue}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* AI Generated Report */}
       <Card>
         <CardHeader>
@@ -254,6 +444,11 @@ const DocumentDetails = ({ document, onBack }: DocumentDetailsProps) => {
               <p className="text-gray-700">
                 <strong>Next Steps:</strong> {analysis.recommendations[0] || 'Continue regular monitoring and follow-up as scheduled'}
               </p>
+              {document.innerDetails?.clinicalCorrelation && (
+                <p className="text-gray-700">
+                  <strong>Clinical Correlation:</strong> {document.innerDetails.clinicalCorrelation}
+                </p>
+              )}
             </div>
 
             <div className="mt-6 pt-4 border-t border-gray-200">
