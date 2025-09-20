@@ -6,10 +6,12 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, CheckCircle, AlertCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import DocumentDetails from './DocumentDetails';
 
 const DocumentUpload = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [uploadedDocuments, setUploadedDocuments] = useState([
     {
       id: 1,
@@ -185,6 +187,16 @@ const DocumentUpload = () => {
     }
   };
 
+  // If a document is selected, show the details view
+  if (selectedDocument) {
+    return (
+      <DocumentDetails 
+        document={selectedDocument} 
+        onBack={() => setSelectedDocument(null)} 
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -259,10 +271,7 @@ const DocumentUpload = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => {
-                        // Create a modal or detailed view for the document
-                        alert(`Document: ${doc.name}\n\nExtracted Data:\n${doc.extractedData}\n\nSummary:\n${(doc as any).summary || 'No summary available'}\n\nNLP Entities:\n${(doc as any).nlpEntities?.map((e: any) => `${e.entity}: ${e.text} (${Math.round(e.confidence * 100)}%)`).join('\n') || 'No entities extracted'}`);
-                      }}
+                      onClick={() => setSelectedDocument(doc)}
                     >
                       <Eye className="h-4 w-4 mr-1" />
                       View Details
