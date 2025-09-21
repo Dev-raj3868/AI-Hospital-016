@@ -147,21 +147,43 @@ const Chatbot = () => {
   const getBotResponse = (userInput: string): string => {
     const input = userInput.toLowerCase();
     
-    if (input.includes('ame') || input.includes('examination')) {
-      return 'Your next Annual Medical Examination is scheduled for July 15, 2024. Would you like me to help you reschedule? 📅';
-    } else if (input.includes('health') || input.includes('status')) {
-      return 'Your current health status is Good! 💚 Your last checkup was on May 15, 2024. Is there anything specific you\'d like to know about your health metrics?';
-    } else if (input.includes('appointment') || input.includes('schedule')) {
-      return 'I can help you schedule appointments! 🏥 What type of appointment would you like to book? AME, follow-up, or consultation?';
-    } else if (input.includes('records') || input.includes('report')) {
-      return 'You can access your health records from the Health Records tab. 📋 Would you like me to guide you there or help you find specific information?';
-    } else if (input.includes('blood pressure') || input.includes('bp')) {
-      return 'Your latest blood pressure reading is 120/80 mmHg - that\'s in the normal range! 💙 Keep up the good work with your health habits.';
-    } else if (input.includes('thank')) {
-      return 'You\'re very welcome! 😊 I\'m here whenever you need assistance with your health information. Stay healthy!';
-    } else {
-      return 'I understand you\'re asking about health-related topics. 🤔 Could you please be more specific so I can better assist you? I can help with AME scheduling, health records, appointments, and general health questions.';
+    if (input.includes('appointment') || input.includes('schedule')) {
+      return "🏥 I can help you schedule an appointment! Navigate to the AME Schedule section where you can select dates, therapy types, and provide symptoms. The enhanced scheduling system will guide you through each step including therapy selection, disease categories, time slots, and priority levels for a comprehensive booking experience.";
     }
+    
+    if (input.includes('health') || input.includes('medical') || input.includes('prediction')) {
+      return "🩺 For health insights, try our AI Health Prediction feature! It analyzes symptoms and provides health predictions, precautions, and medication suggestions. You can also check your Health Records for comprehensive medical history and vital signs tracking.";
+    }
+    
+    if (input.includes('document') || input.includes('upload') || input.includes('analyze')) {
+      return "📋 Our Document Upload system uses advanced NLP to extract detailed medical information! Upload any medical document and click 'View Details' to see comprehensive analysis including vital signs, lab results, imaging findings, vaccination records, and AI-generated medical reports with insights.";
+    }
+    
+    if (input.includes('symptom') || input.includes('pain') || input.includes('fever') || input.includes('headache')) {
+      return "🔍 Based on your symptoms, I recommend using our AI Health Prediction tool for detailed analysis. You can also schedule an appointment with the appropriate specialist through our enhanced booking system. Would you like me to guide you to these features?";
+    }
+    
+    if (input.includes('emergency') || input.includes('urgent') || input.includes('critical')) {
+      return "🚨 For emergency situations, please contact emergency services immediately! For urgent but non-emergency health concerns, you can schedule a priority appointment through our booking system with urgent priority level.";
+    }
+    
+    if (input.includes('medication') || input.includes('prescription') || input.includes('drug')) {
+      return "💊 Our AI Health Prediction system can suggest medications based on symptoms and health conditions. However, always consult with healthcare professionals before taking any medication. Your medical history in Health Records can also provide prescription information.";
+    }
+    
+    if (input.includes('voice') || input.includes('speak') || input.includes('talk')) {
+      return "🎙️ Great! I support voice interaction. You can speak to me by clicking the microphone button, and I can read responses aloud using the voice toggle. This makes our conversation more natural and accessible!";
+    }
+    
+    if (input.includes('therapy') || input.includes('treatment')) {
+      return "🏥 Our appointment system now includes detailed therapy selection! You can choose from General Consultation, Cardiology, Dermatology, Orthopedics, Neurology, and more. Each therapy type has specialized forms to capture relevant health information.";
+    }
+    
+    if (input.includes('help') || input.includes('support') || input.includes('guide')) {
+      return "🤖 I'm your comprehensive AI health assistant! I can help with:\n• 📅 Enhanced appointment scheduling with therapy types and disease categories\n• 🏥 AI health predictions and symptom analysis\n• 📄 Advanced document analysis with NLP extraction\n• 📊 Health record management and vital tracking\n• 🎯 Navigation and feature guidance\n\nWhat would you like to explore?";
+    }
+    
+    return "👋 Hello! I'm your advanced AI health assistant with voice capabilities! I can help with intelligent appointment scheduling (now with therapy selection and disease categories), AI-powered health predictions, sophisticated document analysis with NLP, and comprehensive health management. How can I assist you today?";
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
