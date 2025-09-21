@@ -1,1 +1,4 @@
 project_id = "vrioqduhespuwirwhbzq"
+
+[functions.ai-health-prediction]
+verify_jwt = false
