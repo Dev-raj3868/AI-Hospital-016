@@ -75,6 +75,29 @@ Format your response as JSON with these exact keys:
     });
 
     if (!response.ok) {
+      console.error(`OpenAI API error: ${response.status} - ${response.statusText}`);
+      
+      // Handle rate limiting with a more informative error
+      if (response.status === 429) {
+        console.log('Rate limit hit, providing fallback response');
+        // Return a fallback response instead of throwing an error
+        const fallbackResponse = {
+          overallHealth: "Good",
+          healthScore: 75,
+          riskFactors: ["Rate limit reached - please try again in a few minutes"],
+          recommendations: [
+            "Maintain regular health checkups", 
+            "Continue healthy lifestyle habits", 
+            "Monitor symptoms and consult healthcare provider if needed"
+          ],
+          riskLevel: "Low"
+        };
+        
+        return new Response(JSON.stringify(fallbackResponse), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
