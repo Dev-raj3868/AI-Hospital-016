@@ -21,29 +21,36 @@ serve(async (req) => {
     console.log('Received health data for AI analysis:', { vitals, lifestyle, labResults });
 
     const healthDataPrompt = `
-As a medical AI assistant, analyze the following symptoms and patient information to provide disease prediction, medicine suggestions, and precautions:
+As an expert medical AI assistant, analyze the following patient information to provide precise disease predictions and specific medicine recommendations:
 
 Patient Information:
 - Age: ${vitals.age || 'Not provided'}
 - Gender: ${vitals.gender || 'Not provided'}
-- Symptoms: ${lifestyle.symptoms || 'Not provided'}
+- Primary Symptoms: ${lifestyle.symptoms || 'Not provided'}
 - Medical History: ${lifestyle.medicalHistory || 'Not provided'}
 
-Based on the symptoms and patient information, please provide:
-1. Top 3 most likely diseases/conditions based on symptoms
-2. Top 3 medicine suggestions (include both generic and over-the-counter options where appropriate)
-3. Top 3 important precautions to take
-4. Risk level assessment (Low, Medium, High)
+Provide a comprehensive medical analysis with:
 
-Format your response as JSON with these exact keys:
+1. SPECIFIC DISEASE NAMES: Identify the 3 most likely medical conditions with proper medical terminology (e.g., "Viral Upper Respiratory Tract Infection", "Migraine with Aura", "Gastroesophageal Reflux Disease")
+
+2. SPECIFIC MEDICINE NAMES: Recommend 3 specific medications with exact names and dosages where appropriate:
+   - Include generic names (e.g., "Ibuprofen 400mg", "Acetaminophen 500mg")
+   - Include brand names when relevant (e.g., "Tylenol", "Advil")
+   - Specify OTC vs prescription requirements
+
+3. CLINICAL PRECAUTIONS: Provide 3 specific medical precautions and monitoring recommendations
+
+4. RISK ASSESSMENT: Evaluate as Low, Medium, or High based on symptom severity and potential complications
+
+Response Format (JSON):
 {
-  "possibleDiseases": ["disease1", "disease2", "disease3"],
-  "medicines": ["medicine1", "medicine2", "medicine3"],
-  "precautions": ["precaution1", "precaution2", "precaution3"],
-  "riskLevel": "string"
+  "possibleDiseases": ["Specific Disease Name 1", "Specific Disease Name 2", "Specific Disease Name 3"],
+  "medicines": ["Specific Medicine Name with dosage 1", "Specific Medicine Name with dosage 2", "Specific Medicine Name with dosage 3"],
+  "precautions": ["Specific clinical precaution 1", "Specific clinical precaution 2", "Specific clinical precaution 3"],
+  "riskLevel": "Low/Medium/High"
 }
 
-Important: Provide specific medicine names when appropriate, but always emphasize consulting healthcare professionals. Include both prescription and over-the-counter options where relevant.
+Important: Provide actual pharmaceutical names and medical terminology. Always include disclaimer about consulting healthcare professionals.
 `;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
