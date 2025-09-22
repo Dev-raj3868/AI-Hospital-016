@@ -10,14 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 interface HealthPrediction {
-  overallHealth: string;
-  healthScore: number;
-  riskFactors: string[];
-  recommendations: string[];
+  possibleDiseases: string[];
+  medicines: string[];
+  precautions: string[];
   riskLevel: string;
-  possibleConditions?: string[];
-  precautions?: string[];
-  medications?: string[];
 }
 
 const AIHealthPrediction = () => {
@@ -58,27 +54,7 @@ const AIHealthPrediction = () => {
 
       if (error) throw error;
 
-      // Enhance the prediction with additional health-specific fields
-      const enhancedPrediction: HealthPrediction = {
-        ...data,
-        possibleConditions: data.possibleConditions || [
-          'Based on symptoms analysis',
-          'Requires professional evaluation',
-          'Multiple factors considered'
-        ],
-        precautions: data.precautions || data.recommendations?.slice(0, 3) || [
-          'Maintain proper hygiene',
-          'Stay hydrated',
-          'Get adequate rest'
-        ],
-        medications: data.medications || [
-          'Consult healthcare provider for proper medication',
-          'Over-the-counter pain relief if needed',
-          'Follow prescribed treatment plan'
-        ]
-      };
-
-      setPrediction(enhancedPrediction);
+      setPrediction(data);
       toast({
         title: "Prediction Complete",
         description: "AI health analysis has been generated successfully"
@@ -104,17 +80,12 @@ const AIHealthPrediction = () => {
     }
   };
 
-  const getHealthScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    return 'text-red-600';
-  };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">AI Health Prediction</h1>
-        <p className="text-gray-600">Get AI-powered health insights based on your symptoms and information</p>
+        <h1 className="text-2xl font-bold text-gray-900">AI Disease Prediction</h1>
+        <p className="text-gray-600">Get AI-powered disease prediction, medicine suggestions, and precautions based on your symptoms</p>
       </div>
 
       {/* Input Form */}
@@ -122,10 +93,10 @@ const AIHealthPrediction = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Brain className="h-5 w-5 mr-2" />
-            Health Assessment
+            Disease Prediction Assessment
           </CardTitle>
           <CardDescription>
-            Provide your symptoms and basic information for AI analysis
+            Provide your symptoms and basic information for AI disease prediction and medicine suggestions
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -185,7 +156,7 @@ const AIHealthPrediction = () => {
               ) : (
                 <>
                   <Brain className="h-4 w-4 mr-2" />
-                  Get AI Health Prediction
+                  Get AI Disease Prediction
                 </>
               )}
             </Button>
@@ -196,137 +167,85 @@ const AIHealthPrediction = () => {
       {/* Prediction Results */}
       {prediction && (
         <div className="space-y-6">
-          {/* Health Overview */}
+          {/* Risk Level Overview */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Heart className="h-5 w-5 mr-2" />
-                Health Overview
+                <AlertCircle className="h-5 w-5 mr-2" />
+                Risk Assessment
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <h3 className="font-semibold text-blue-900">Overall Health</h3>
-                  <p className="text-xl font-bold text-blue-600">{prediction.overallHealth}</p>
-                </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <h3 className="font-semibold text-purple-900">Health Score</h3>
-                  <p className={`text-2xl font-bold ${getHealthScoreColor(prediction.healthScore)}`}>
-                    {prediction.healthScore}/100
-                  </p>
-                </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-semibold text-gray-900">Risk Level</h3>
-                  <Badge className={getRiskLevelColor(prediction.riskLevel)}>
-                    {prediction.riskLevel}
-                  </Badge>
-                </div>
+              <div className="text-center p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-semibold text-gray-900">Risk Level</h3>
+                <Badge className={getRiskLevelColor(prediction.riskLevel)}>
+                  {prediction.riskLevel}
+                </Badge>
               </div>
             </CardContent>
           </Card>
 
-          {/* Possible Conditions */}
-          {prediction.possibleConditions && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <AlertCircle className="h-5 w-5 mr-2" />
-                  Possible Conditions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {prediction.possibleConditions.map((condition, index) => (
-                    <div key={index} className="p-3 bg-orange-50 rounded-lg border-l-4 border-orange-400">
-                      <p className="text-orange-800">{condition}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Risk Factors */}
-          {prediction.riskFactors.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Risk Factors</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {prediction.riskFactors.map((factor, index) => (
-                    <div key={index} className="p-3 bg-red-50 rounded-lg border-l-4 border-red-400">
-                      <p className="text-red-800">{factor}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Precautions */}
-          {prediction.precautions && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Shield className="h-5 w-5 mr-2" />
-                  Precautions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {prediction.precautions.map((precaution, index) => (
-                    <div key={index} className="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-                      <p className="text-blue-800">{precaution}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Recommendations */}
+          {/* Possible Diseases */}
           <Card>
             <CardHeader>
-              <CardTitle>Recommendations</CardTitle>
+              <CardTitle className="flex items-center">
+                <AlertCircle className="h-5 w-5 mr-2" />
+                Possible Diseases/Conditions
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {prediction.recommendations.map((recommendation, index) => (
-                  <div key={index} className="p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
-                    <p className="text-green-800">{recommendation}</p>
+                {prediction.possibleDiseases.map((disease, index) => (
+                  <div key={index} className="p-3 bg-orange-50 rounded-lg border-l-4 border-orange-400">
+                    <p className="text-orange-800 font-medium">{disease}</p>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
 
-          {/* Medications */}
-          {prediction.medications && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Pill className="h-5 w-5 mr-2" />
-                  Medication Suggestions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-4">
-                  <p className="text-yellow-800 text-sm font-medium">
-                    ⚠️ Disclaimer: These are AI-generated suggestions. Always consult with a healthcare professional before taking any medication.
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  {prediction.medications.map((medication, index) => (
-                    <div key={index} className="p-3 bg-purple-50 rounded-lg border-l-4 border-purple-400">
-                      <p className="text-purple-800">{medication}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Medicine Suggestions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Pill className="h-5 w-5 mr-2" />
+                Medicine Suggestions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-4">
+                <p className="text-yellow-800 text-sm font-medium">
+                  ⚠️ Disclaimer: These are AI-generated suggestions. Always consult with a healthcare professional before taking any medication.
+                </p>
+              </div>
+              <div className="space-y-2">
+                {prediction.medicines.map((medicine, index) => (
+                  <div key={index} className="p-3 bg-purple-50 rounded-lg border-l-4 border-purple-400">
+                    <p className="text-purple-800 font-medium">{medicine}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Precautions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Shield className="h-5 w-5 mr-2" />
+                Precautions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {prediction.precautions.map((precaution, index) => (
+                  <div key={index} className="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                    <p className="text-blue-800 font-medium">{precaution}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
           <Card className="border-yellow-200 bg-yellow-50">
             <CardContent className="pt-6">

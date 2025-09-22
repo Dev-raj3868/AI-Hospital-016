@@ -21,38 +21,29 @@ serve(async (req) => {
     console.log('Received health data for AI analysis:', { vitals, lifestyle, labResults });
 
     const healthDataPrompt = `
-As a medical AI assistant, analyze the following health data and provide insights:
+As a medical AI assistant, analyze the following symptoms and patient information to provide disease prediction, medicine suggestions, and precautions:
 
-Vital Signs:
-- Blood Pressure: ${vitals.bloodPressure || 'Not provided'}
-- Heart Rate: ${vitals.heartRate || 'Not provided'} bpm
-- Temperature: ${vitals.temperature || 'Not provided'}°F
-- Weight: ${vitals.weight || 'Not provided'} lbs
-- Height: ${vitals.height || 'Not provided'}
+Patient Information:
+- Age: ${vitals.age || 'Not provided'}
+- Gender: ${vitals.gender || 'Not provided'}
+- Symptoms: ${lifestyle.symptoms || 'Not provided'}
+- Medical History: ${lifestyle.medicalHistory || 'Not provided'}
 
-Lifestyle Factors:
-- Exercise: ${lifestyle.exercise || 'Not provided'} minutes/day
-- Sleep: ${lifestyle.sleep || 'Not provided'} hours/night
-- Stress Level: ${lifestyle.stress || 'Not provided'}/10
-- Diet Quality: ${lifestyle.diet || 'Not provided'}/10
-
-Lab Results: ${labResults ? JSON.stringify(labResults) : 'Not provided'}
-
-Please provide:
-1. Overall health assessment (Excellent, Good, Fair, Poor)
-2. Health score (0-100)
-3. Top 3 risk factors (if any)
-4. Top 3 specific, actionable recommendations
-5. Risk level (Low, Medium, High)
+Based on the symptoms and patient information, please provide:
+1. Top 3 most likely diseases/conditions based on symptoms
+2. Top 3 medicine suggestions (include both generic and over-the-counter options where appropriate)
+3. Top 3 important precautions to take
+4. Risk level assessment (Low, Medium, High)
 
 Format your response as JSON with these exact keys:
 {
-  "overallHealth": "string",
-  "healthScore": number,
-  "riskFactors": ["string1", "string2", "string3"],
-  "recommendations": ["string1", "string2", "string3"],
+  "possibleDiseases": ["disease1", "disease2", "disease3"],
+  "medicines": ["medicine1", "medicine2", "medicine3"],
+  "precautions": ["precaution1", "precaution2", "precaution3"],
   "riskLevel": "string"
 }
+
+Important: Provide specific medicine names when appropriate, but always emphasize consulting healthcare professionals. Include both prescription and over-the-counter options where relevant.
 `;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -82,14 +73,9 @@ Format your response as JSON with these exact keys:
         console.log('Rate limit hit, providing fallback response');
         // Return a fallback response instead of throwing an error
         const fallbackResponse = {
-          overallHealth: "Good",
-          healthScore: 75,
-          riskFactors: ["Rate limit reached - please try again in a few minutes"],
-          recommendations: [
-            "Maintain regular health checkups", 
-            "Continue healthy lifestyle habits", 
-            "Monitor symptoms and consult healthcare provider if needed"
-          ],
+          possibleDiseases: ["Rate limit reached - please try again in a few minutes"],
+          medicines: ["Consult healthcare provider for proper medication"],
+          precautions: ["Monitor symptoms closely", "Stay hydrated", "Get adequate rest"],
           riskLevel: "Low"
         };
         
@@ -114,10 +100,9 @@ Format your response as JSON with these exact keys:
       console.error('Failed to parse AI response as JSON:', parseError);
       // Fallback response
       parsedResponse = {
-        overallHealth: "Good",
-        healthScore: 75,
-        riskFactors: ["Insufficient data for detailed analysis"],
-        recommendations: ["Maintain regular health checkups", "Continue healthy lifestyle habits", "Monitor key health metrics regularly"],
+        possibleDiseases: ["Insufficient data for detailed analysis"],
+        medicines: ["Consult healthcare provider for proper medication"],
+        precautions: ["Monitor symptoms closely", "Maintain proper hygiene", "Get adequate rest"],
         riskLevel: "Low"
       };
     }
