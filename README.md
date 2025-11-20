@@ -2,4 +2,4 @@
 
 ## Project info
 
-**URL**: https://aihospital.netlify.app/
+https://aibasedhospital.netlify.app/
